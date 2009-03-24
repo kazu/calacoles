@@ -8,12 +8,21 @@ module Calacoles
     File.join(ENV["HOME"],"Library/StickiesDatabase")
   end
   class StickiesLocal
+    attr_reader :backupname
     def initialize(doc=nil)
       @doc = doc
     end
     def backup(dst=nil)
-      dst ||= File.join(ENV["HOME"], "Library/StickiesDatabase.backup")
+      @backupname = dst ||  
+                    File.join(ENV["HOME"], "Library/StickiesDatabase.backup")
+      FileUtils.cp(Calacoles::db_path,@backupname)
     end
+
+    def remove_backup
+      FileUtils.rm_f(@backupname) if @backupname
+    end
+
   end
+
 end
 
