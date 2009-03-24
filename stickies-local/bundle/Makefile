@@ -1,2 +1,2 @@
 all:
-	gcc -bundle -o doccument.bundle -framework foundation -frramework appkit Document.m NSColor+FCSAdditions.m NSAttributedString+FCSAdditions.m
+	gcc -bundle -o doccument.bundle -framework foundation -framework appkit Document.m NSColor+FCSAdditions.m NSAttributedString+FCSAdditions.m
