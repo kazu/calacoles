@@ -1,0 +1,42 @@
+#!/usr/bin/env ruby
+require "stickies-local"
+
+module Calacoles
+  class StickiesCmd
+    def test
+      Calacoles.backup
+      z = Calacoles::StickiesArchive.load(Calacoles.db_path)
+      require "pp"
+      sl =  z.to_a[0]
+      pp sl.doc
+      pp sl.doc.object_id
+      zz = nil
+      z.to_a.each{|sl|
+        zz = sl.doc.stringValue
+        p sl.doc.object_id
+      }
+      #  p zz
+      str = "       ああああzzzzzzzzz\nzzzzzzzzzzzzzzzzzzzzzzzz"
+      slw =  Calacoles::StickiesLocal.new
+      slw.init_doc(open(ARGV[0]).read,:type=>:doc,:out=>"hoge.rtf")
+      z.stickies.addObject(slw.doc)
+      z.save
+      p z.to_a.size
+      puts "fin"
+      #  Calacoles.remove_backup
+    end
+    def list(opt={})
+      Calacoles.backup
+      st_ar = Calacoles::StickiesArchive.load(Calacoles.db_path)
+      st_ar.to_a.each{|sl|
+        puts sl.title
+      }
+    end
+  end
+end
+
+if $0 == __FILE__
+  cmd = ARGV.shift
+  sc = Calacoles::StickiesCmd.new
+  sc.send(cmd) 
+end

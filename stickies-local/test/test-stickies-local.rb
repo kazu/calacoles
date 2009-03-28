@@ -6,7 +6,7 @@ class StickiesLocalTest < Test::Unit::TestCase
     assert_equal("#{ENV["HOME"]}/Library/StickiesDatabase",Calacoles.db_path)
   end
   def test_backup
-    stk = Calacoles::StickiesLocal.new
+    stk = Calacoles
     stk.backup
     assert_equal(stk.backupname,"#{ENV["HOME"]}/Library/StickiesDatabase.backup")
     
