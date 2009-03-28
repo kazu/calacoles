@@ -2,7 +2,19 @@
 require "stickies-local"
 
 module Calacoles
-  class StickiesCmd
+
+  class AbstractStickiesCmd
+
+    def cmd(cmd,*args)
+      cmdarg = args.collect{|x| Hash[*x.scan(/=/)] }.inject({}){|result, item|
+        result.merge(item)
+      } || {}
+      p cmd
+      send(cmd,cmdarg)
+    end
+
+  end
+  class StickiesCmd < AbstractStickiesCmd
     def test
       Calacoles.backup
       z = Calacoles::StickiesArchive.load(Calacoles.db_path)
@@ -36,7 +48,6 @@ module Calacoles
 end
 
 if $0 == __FILE__
-  cmd = ARGV.shift
   sc = Calacoles::StickiesCmd.new
-  sc.send(cmd) 
+  sc.cmd(*ARGV.dup)
 end
