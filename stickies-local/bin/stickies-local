@@ -63,11 +63,13 @@ module Calacoles
       }
     end
     def show(opt)
-      #STDERR.puts opt.inspect
       st_ar = Calacoles::StickiesArchive.load(Calacoles.db_path)
-      puts st_ar.to_a.find{|sl|
-        sl.title=~/#{opt["title"]}/
-      }.to_s(:type=>(opt["type"]|| "string").to_sym)
+      sl = st_ar.to_a.find{|sl|
+        sl.title && sl.title=~/#{opt["title"]}/
+      }
+      puts %Q[pos:#{sl.doc.windowFrame.to_a.join(":")}]
+      puts sl.to_s(:type=>(opt["type"]|| "string").to_sym)
+      #}.join("")
     end
   end
 end

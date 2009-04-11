@@ -76,6 +76,7 @@ module Calacoles
         :raw => self.to_s(opt),
         :format => opt[:type].to_s,
         :desc => @doc.stringValue.to_s,
+        :pos => @doc.windowFrame.to_a,
         :status => @status || :show
       ) 
     end
