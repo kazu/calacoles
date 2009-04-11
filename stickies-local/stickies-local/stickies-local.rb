@@ -62,6 +62,7 @@ module Calacoles
 
   class StickiesLocal
     attr_reader :backupname, :doc, :rtf
+    attr_accessor :status
     def initialize(doc=nil)
       @doc = doc
     end
@@ -74,7 +75,8 @@ module Calacoles
         :title => @doc.stringValue.to_s.gsub(/\n.+/m,""),
         :raw => self.to_s(opt),
         :format => opt[:type].to_s,
-        :desc => @doc.stringValue.to_s
+        :desc => @doc.stringValue.to_s,
+        :status => @status || :show
       ) 
     end
     # :type => :string, :doc, :rtf, :rtfd
