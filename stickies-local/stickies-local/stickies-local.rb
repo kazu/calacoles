@@ -58,17 +58,31 @@ module Calacoles
       @stickies.collect{|x| StickiesLocal.new(x) }
     end
 
+    def replace(lists)
+      @stickies.removeAllObjects
+      lists.each{|sth|
+        @stickies.addObject(StickiesLocal.new(sth))
+      }
+    end
+
   end
 
   class StickiesLocal
     attr_reader :backupname, :doc, :rtf
     attr_accessor :status
-    def initialize(doc=nil)
-      @doc = doc
+    def initialize(src=nil)
+      if src.class == Hash
+         init_doc(src[:raw],:type=>:rtfd)
+         @doc.setwindwFrame(*set[:pos])
+      else
+        @doc = doc 
+      end
     end
+
     def title
       [@doc.object_id.to_s, @doc.stringValue.to_s.gsub(/\n.+/m,"")].join(": ")
     end
+
     def to_h(opt={:type=>:rtfd})
       ret = {}
       ret.merge(
@@ -112,6 +126,13 @@ module Calacoles
         data = OSX::NSData.dataWithRubyString(str)
         attStr = 
           OSX::NSAttributedString.alloc.initWithDocFormat_documentAttributes(
+            data,
+            atts
+          )
+      when :rtfd
+        data = OSX::NSData.dataWithRubyString(str)
+        attStr = 
+          OSX::NSAttributedString.alloc.initWithRTFD_documentAttributes(
             data,
             atts
           )
