@@ -68,10 +68,24 @@ module Calacoles
     def title
       [@doc.object_id.to_s, @doc.stringValue.to_s.gsub(/\n.+/m,"")].join(": ")
     end
+    def to_h(opt={:type=>:rtfd})
+      ret = {}
+      ret.merge(
+        :title => @doc.stringValue.to_s.gsub(/\n.+/m,""),
+        :raw => self.to_s(opt),
+        :format => opt[:type].to_s,
+        :desc => @doc.stringValue.to_s
+      ) 
+    end
     # :type => :string, :doc, :rtf, :rtfd
     def to_s(opt={:type=>:string})
-      return @doc.stringValue.rubyString if opt[:type] == :string
-      @doc.stringValue.send(
+      return @doc.stringValue.to_s if opt[:type] == :string
+      attStr = 
+        OSX::NSAttributedString.alloc.initWithRTFD_documentAttributes(
+          @doc.RTFDData,
+          nil
+        )
+      attStr.send(
         case opt[:type]
         when :doc
           "docFormatFromRange_documentAttributes"
@@ -80,7 +94,7 @@ module Calacoles
         when :rtfd
           "RTFDFromRange_documentAttributes"
         end,
-        OSX::NSMakeRange(0,@doc.stringValue.length),nil).rubyString
+        OSX::NSMakeRange(0,attStr.length),nil).rubyString
     end
     # :type=> :String , :doc, :html, :rtf
     def init_doc(str,opt={:type=>:String})

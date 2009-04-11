@@ -1,15 +1,16 @@
 #!/usr/bin/env ruby
 require "stickies-local"
+require "FileUtils"
+require "yaml"
 
 module Calacoles
 
   class AbstractStickiesCmd
 
     def cmd(cmd,*args)
-      cmdarg = args.collect{|x| Hash[*x.scan(/=/)] }.inject({}){|result, item|
+      cmdarg = args.collect{|x| Hash[*x.split(/=/)] }.inject({}){|result, item|
         result.merge(item)
       } || {}
-      p cmd
       send(cmd,cmdarg)
     end
 
@@ -37,12 +38,33 @@ module Calacoles
       puts "fin"
       #  Calacoles.remove_backup
     end
+
+    def save(opt={:confdir=>File.join(ENV["HOME"],"Library/stickies-local")})
+      st_ar = Calacoles::StickiesArchive.load(Calacoles.db_path)
+      opt[:host] ||=Socket.gethostname
+
+      FileUtils.mkdir_p opt[:confdir]
+      st_ar.to_a.each{|sl|
+        fname = [opt[:host],sl.doc.object_id.to_s].join("_") + ".yaml"
+        open(File.join(opt[:confidr],fname),"w+"){|f|
+          f.write YAML.dump(sl.to_h)
+        }
+      }
+    end
+
     def list(opt={})
       Calacoles.backup
       st_ar = Calacoles::StickiesArchive.load(Calacoles.db_path)
       st_ar.to_a.each{|sl|
         puts sl.title
       }
+    end
+    def show(opt)
+      #STDERR.puts opt.inspect
+      st_ar = Calacoles::StickiesArchive.load(Calacoles.db_path)
+      puts st_ar.to_a.find{|sl|
+        sl.title=~/#{opt["title"]}/
+      }.to_s(:type=>(opt["type"]|| "string").to_sym)
     end
   end
 end
