@@ -61,7 +61,7 @@ module Calacoles
     def replace(lists)
       @stickies.removeAllObjects
       lists.each{|sth|
-        @stickies.addObject(StickiesLocal.new(sth))
+        @stickies.addObject(StickiesLocal.new(sth).doc)
       }
     end
 
@@ -73,9 +73,14 @@ module Calacoles
     def initialize(src=nil)
       if src.class == Hash
          init_doc(src[:raw],:type=>:rtfd)
-         @doc.setwindwFrame(*set[:pos])
+         src[:pos].flatten! if src[:pos]
+         if src[:pos] &&  src[:pos].size == 4
+           rect = OSX::NSRect.new(*src[:pos])
+           puts title
+           @doc.setWindowFrame(rect)
+         end
       else
-        @doc = doc 
+        @doc = src
       end
     end
 

@@ -40,6 +40,25 @@ module Calacoles
       #  Calacoles.remove_backup
     end
 
+    def sync(opt={})
+      save
+      opt.merge!(
+        {:confdir=>File.join(ENV["HOME"],"Library/stickies-local")}) unless opt[:confdir]
+ 
+      st_ar = Calacoles::StickiesArchive.load(Calacoles.db_path)
+      stickies = Dir.glob(opt[:confdir]+"/*.yaml").collect{|x|
+         YAML.load_file(x)
+      }.compact.inject([]){|res,val|
+        unless val.class == Hash && res.find{|x| x[:title] == val[:title] }
+          res << val
+        else
+          res
+        end
+      }.delete_if{|x| x.class != Hash   }
+      st_ar.replace(stickies)
+      st_ar.save
+    end
+
     def save(opt={})
       opt.merge!(
         {:confdir=>File.join(ENV["HOME"],"Library/stickies-local")}) unless opt[:confdir]
@@ -61,6 +80,7 @@ module Calacoles
       st_ar.to_a.each{|sl|
         puts sl.title
       }
+      p st_ar.stickies
     end
     def show(opt)
       st_ar = Calacoles::StickiesArchive.load(Calacoles.db_path)
