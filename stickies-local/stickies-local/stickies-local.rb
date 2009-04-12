@@ -70,6 +70,8 @@ module Calacoles
   class StickiesLocal
     attr_reader :backupname, :doc, :rtf
     attr_accessor :status
+    H2sl = {:color => :WindowColor,
+            :flags => :WindowFlags }
     def initialize(src=nil)
       if src.class == Hash
          init_doc(src[:raw],:type=>:rtfd)
@@ -79,6 +81,11 @@ module Calacoles
            puts title
            @doc.setWindowFrame(rect)
          end
+         H2sl.each{|k,v|
+           if src[k]
+             @doc.send("set" + v.to_s, src[k])
+           end
+         }
       else
         @doc = src
       end
@@ -96,6 +103,8 @@ module Calacoles
         :format => opt[:type].to_s,
         :desc => @doc.stringValue.to_s,
         :pos => @doc.windowFrame.to_a,
+        :color => @doc.windowColor,
+        :flags => @doc.windowFlags,
         :status => @status || :show
       ) 
     end

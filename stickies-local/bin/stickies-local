@@ -80,7 +80,6 @@ module Calacoles
       st_ar.to_a.each{|sl|
         puts sl.title
       }
-      p st_ar.stickies
     end
     def show(opt)
       st_ar = Calacoles::StickiesArchive.load(Calacoles.db_path)
@@ -88,6 +87,7 @@ module Calacoles
         sl.title && sl.title=~/#{opt["title"]}/
       }
       puts %Q[pos:#{sl.doc.windowFrame.to_a.join(":")}]
+      puts %Q[flag:#{sl.doc.windowFlags.inspect}]
       puts sl.to_s(:type=>(opt["type"]|| "string").to_sym)
       #}.join("")
     end
