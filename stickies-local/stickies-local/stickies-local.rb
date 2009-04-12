@@ -106,6 +106,7 @@ module Calacoles
         :pos => @doc.windowFrame.to_a,
         :color => @doc.windowColor,
         :flags => @doc.windowFlags,
+        :time => Time.now,
         :status => @status || :show
       ) 
     end

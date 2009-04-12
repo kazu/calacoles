@@ -3,7 +3,7 @@ require "stickies-local"
 require "FileUtils"
 require "yaml"
 require "socket"
-
+require "pp"
 module Calacoles
 
   class AbstractStickiesCmd
@@ -39,6 +39,62 @@ module Calacoles
       puts "fin"
       #  Calacoles.remove_backup
     end
+    def _confdir(opt={})
+      opt.merge(
+        {:confdir=>File.join(ENV["HOME"],
+                             "Library/stickies-local")}
+      )[:confdir]
+
+    end
+    def _datas(opt={})
+      opt.merge!(
+        {:confdir=>File.join(ENV["HOME"],
+                             "Library/stickies-local")}
+      ) unless opt[:confdir]
+      Dir.glob(opt[:confdir]+"/*.yaml").collect{|x|
+          z = YAML.load_file(x)
+         if z.class == Hash
+           z
+         else
+           nil
+         end
+      }.compact
+    end
+    def find(opt={})
+      lsts = _datas(opt)
+      lsts.collect!{|stl|
+        unless stl[:desc] =~eval(opt["pat"]) # danger , should not use eval
+          nil
+        else
+          stl
+        end
+      }.compact.each{|stl|
+        stl.delete(:raw)
+        puts stl.pretty_inspect
+      }
+    end
+
+
+    def set(opt={})
+      lsts = _datas(opt)
+      lsts.collect!{|stl|
+        unless stl[:desc] =~eval(opt["pat"]) # danger , should not use eval
+          nil
+        else
+          opt.reject{|k,v| k == "opt"  }.each{|k,v|
+            stl[k.to_sym] = v.to_i # only support fixnum
+          }
+          stl
+        end
+      }.compact.each{|stl|
+        stl[:time] = Time.now
+        opt[:host] ||=Socket.gethostname
+        fname = [opt[:host],stl.object_id.to_s].join(":") + ".yaml"
+        open(File.join(_confdir,fname),"w+"){|f|
+          f.write YAML.dump(stl)
+        }
+      }
+    end
 
     def sync(opt={})
       #save
@@ -47,8 +103,13 @@ module Calacoles
  
       st_ar = Calacoles::StickiesArchive.load(Calacoles.db_path)
       stickies = Dir.glob(opt[:confdir]+"/*.yaml").collect{|x|
-         YAML.load_file(x)
-      }.compact.inject([]){|res,val|
+         z = YAML.load_file(x)
+         if z.class == Hash
+           z
+         else
+           nil
+         end
+      }.compact.sort_by{|x| x[:time] }.reverse.inject([]){|res,val|
         unless val.class == Hash && res.find{|x| 
           begin
             x[:title] == val[:title]
@@ -80,7 +141,7 @@ module Calacoles
       }
     end
 
-    def list(opt={})
+    def _list(opt={})
       Calacoles.backup
       st_ar = Calacoles::StickiesArchive.load(Calacoles.db_path)
       st_ar.to_a.each{|sl|
