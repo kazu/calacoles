@@ -41,7 +41,7 @@ module Calacoles
     end
 
     def sync(opt={})
-      save
+      #save
       opt.merge!(
         {:confdir=>File.join(ENV["HOME"],"Library/stickies-local")}) unless opt[:confdir]
  
@@ -49,7 +49,13 @@ module Calacoles
       stickies = Dir.glob(opt[:confdir]+"/*.yaml").collect{|x|
          YAML.load_file(x)
       }.compact.inject([]){|res,val|
-        unless val.class == Hash && res.find{|x| x[:title] == val[:title] }
+        unless val.class == Hash && res.find{|x| 
+          begin
+            x[:title] == val[:title]
+          rescue
+            false
+          end
+        }
           res << val
         else
           res

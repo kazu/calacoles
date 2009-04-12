@@ -74,11 +74,11 @@ module Calacoles
             :flags => :WindowFlags }
     def initialize(src=nil)
       if src.class == Hash
+         puts src[:title]
          init_doc(src[:raw],:type=>:rtfd)
          src[:pos].flatten! if src[:pos]
          if src[:pos] &&  src[:pos].size == 4
            rect = OSX::NSRect.new(*src[:pos])
-           puts title
            @doc.setWindowFrame(rect)
          end
          H2sl.each{|k,v|
@@ -86,6 +86,7 @@ module Calacoles
              @doc.send("set" + v.to_s, src[k])
            end
          }
+         puts title
       else
         @doc = src
       end
