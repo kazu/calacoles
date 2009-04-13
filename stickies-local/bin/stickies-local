@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 require "stickies-local"
-require "FileUtils"
+require "fileutils"
 require "yaml"
 require "socket"
 require "pp"
@@ -68,9 +68,14 @@ module Calacoles
         else
           stl
         end
-      }.compact.each{|stl|
+      }.compact.sort_by{|x| x[:time] }.reverse.each{|stl|
         stl.delete(:raw)
-        puts stl.pretty_inspect
+        #puts stl.pretty_inspect
+        puts "------\n"+ stl.collect{|k,v|
+          [k.to_s,
+            v.to_s.gsub(/^(.)/){|x| "\t" + x  }
+          ].join(": ")
+        }.join("\n")+"\n"
       }
     end
 
@@ -124,6 +129,7 @@ module Calacoles
       }.delete_if{|x| x.class != Hash   }
       st_ar.replace(stickies)
       st_ar.save
+      #st_ar.free_memory
     end
 
     def save(opt={})
@@ -135,9 +141,10 @@ module Calacoles
       FileUtils.mkdir_p opt[:confdir]
       st_ar.to_a.each{|sl|
         fname = [opt[:host],sl.doc.object_id.to_s].join(":") + ".yaml"
+        hash = sl.to_h
         open(File.join(opt[:confdir],fname),"w+"){|f|
-          f.write YAML.dump(sl.to_h)
-        }
+          f.write YAML.dump(hash)
+        } if hash.class == Hash 
       }
     end
 
