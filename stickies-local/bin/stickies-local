@@ -81,6 +81,7 @@ module Calacoles
         unless stl[:desc] =~eval(opt["pat"]) # danger , should not use eval
           nil
         else
+          puts stl[:title]
           opt.reject{|k,v| k == "opt"  }.each{|k,v|
             stl[k.to_sym] = v.to_i # only support fixnum
           }
@@ -96,6 +97,11 @@ module Calacoles
       }
     end
 
+    def removeall(opt={})
+      st_ar = Calacoles::StickiesArchive.load(Calacoles.db_path)
+      st_ar.stickies.removeAllObjects
+      st_ar.save
+    end
     def sync(opt={})
       #save
       opt.merge!(
@@ -104,7 +110,8 @@ module Calacoles
       st_ar = Calacoles::StickiesArchive.load(Calacoles.db_path)
       stickies = Dir.glob(opt[:confdir]+"/*.yaml").collect{|x|
          z = YAML.load_file(x)
-         if z.class == Hash
+         z[:status] = :show unless z[:status]
+         if z.class == Hash && z[:time] && z[:status] == :show
            z
          else
            nil
@@ -121,7 +128,7 @@ module Calacoles
         else
           res
         end
-      }.delete_if{|x| x.class != Hash   }
+      }.delete_if{|x| x.class != Hash }
       st_ar.replace(stickies)
       st_ar.save
     end

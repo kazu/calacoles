@@ -74,6 +74,7 @@ module Calacoles
             :flags => :WindowFlags }
     def initialize(src=nil)
       if src.class == Hash
+         puts "write1"
          puts src[:title]
          init_doc(src[:raw],:type=>:rtfd)
          src[:pos].flatten! if src[:pos]
@@ -86,18 +87,21 @@ module Calacoles
              @doc.send("set" + v.to_s, src[k])
            end
          }
-         puts title
+         #puts title
       else
         @doc = src
       end
     end
 
     def title
-      [@doc.object_id.to_s, @doc.stringValue.to_s.gsub(/\n.+/m,"")].join(": ")
+      @doc.stringValue.to_s.gsub(/\n.+/m,"")#].join(": ")
     end
 
     def to_h(opt={:type=>:rtfd})
       ret = {}
+      @status = if @doc.stringValue.to_s=~/status\:delete/
+                  :hide
+                end
       ret.merge(
         :title => @doc.stringValue.to_s.gsub(/\n.+/m,""),
         :raw => self.to_s(opt),
