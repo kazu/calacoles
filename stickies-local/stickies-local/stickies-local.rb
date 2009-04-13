@@ -60,8 +60,13 @@ module Calacoles
 
     def replace(lists)
       @stickies.removeAllObjects
+      #sth = lists[0]
+      #sl = StickiesLocal.new(sth)
+      #@stickies.addObject(sl.doc) if sl.doc
+      #return true
       lists.each{|sth|
-        @stickies.addObject(StickiesLocal.new(sth).doc)
+        sl =  StickiesLocal.new(sth)
+        @stickies.addObject(sl.doc) if sl.doc
       }
     end
 
@@ -76,7 +81,8 @@ module Calacoles
       if src.class == Hash
          puts "write1"
          puts src[:title]
-         init_doc(src[:raw],:type=>:rtfd)
+         init_doc(src[:raw].dup,:type=>src[:format].to_sym)
+         #return self
          src[:pos].flatten! if src[:pos]
          if src[:pos] &&  src[:pos].size == 4
            rect = OSX::NSRect.new(*src[:pos])
@@ -84,7 +90,7 @@ module Calacoles
          end
          H2sl.each{|k,v|
            if src[k]
-             @doc.send("set" + v.to_s, src[k])
+             @doc.send("set" + v.to_s, src[k]) if src[k]
            end
          }
          #puts title
@@ -97,7 +103,7 @@ module Calacoles
       @doc.stringValue.to_s.gsub(/\n.+/m,"")#].join(": ")
     end
 
-    def to_h(opt={:type=>:rtfd})
+    def to_h(opt={:type=>:doc})
       ret = {}
       @status = if @doc.stringValue.to_s=~/status\:delete/
                   :hide
@@ -157,6 +163,7 @@ module Calacoles
             atts
           )
       else
+        p opt[:type]
         data = str.to_nsstr
         attStr = OSX::NSAttributedString.alloc.initWithString_attributes(
           data,
