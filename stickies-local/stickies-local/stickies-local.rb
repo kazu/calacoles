@@ -60,13 +60,19 @@ module Calacoles
 
     def replace(lists)
       @stickies.removeAllObjects
+      save
       #sth = lists[0]
       #sl = StickiesLocal.new(sth)
       #@stickies.addObject(sl.doc) if sl.doc
       #return true
       lists.each{|sth|
+        if sth[:status].to_s != "show"
+          puts "skip:" + sth[:title]
+          next
+        end
         sl =  StickiesLocal.new(sth)
         @stickies.addObject(sl.doc) if sl.doc
+        save
       }
     end
 
@@ -79,8 +85,7 @@ module Calacoles
             :flags => :WindowFlags }
     def initialize(src=nil)
       if src.class == Hash
-         puts "write1"
-         puts src[:title]
+         puts "write1" + src[:title]
          init_doc(src[:raw].dup,:type=>src[:format].to_sym)
          #return self
          src[:pos].flatten! if src[:pos]

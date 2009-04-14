@@ -115,8 +115,7 @@ module Calacoles
       st_ar = Calacoles::StickiesArchive.load(Calacoles.db_path)
       stickies = Dir.glob(opt[:confdir]+"/*.yaml").collect{|x|
          z = YAML.load_file(x)
-         z[:status] = :show unless z[:status]
-         if z.class == Hash && z[:time] && z[:status] == :show
+         if z.class == Hash && z[:time]
            z
          else
            nil
