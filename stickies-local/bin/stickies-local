@@ -39,6 +39,21 @@ module Calacoles
       puts "fin"
       #  Calacoles.remove_backup
     end
+
+    def help(opt={})
+      puts "usage: stickies-local COMMAND [ARGS] "
+      puts "\nthe most commonlu used stickies-local commands are:"
+      z=  {:save=>"save local stickies data as shareddata ",
+         :sync=>"sync between local stickies data and shareddata",
+         :find=>"pat=<regexp> find stickies with matching regexp",
+         :set=>"pat=<regexp> <attribute>=value set value to attributes with regexp. \n\tyou must run sync command after this command. "
+      }
+      puts z.collect{|k,v|
+          "  " +  [k.to_s,v.to_s].join("\t")
+      }.join("\n")
+
+    end
+
     def _confdir(opt={})
       opt.merge(
         {:confdir=>File.join(ENV["HOME"],
@@ -111,7 +126,6 @@ module Calacoles
       #save
       opt.merge!(
         {:confdir=>File.join(ENV["HOME"],"Library/stickies-local")}) unless opt[:confdir]
- 
       st_ar = Calacoles::StickiesArchive.load(Calacoles.db_path)
       stickies = Dir.glob(opt[:confdir]+"/*.yaml").collect{|x|
          z = YAML.load_file(x)
@@ -135,6 +149,8 @@ module Calacoles
       }.delete_if{|x| x.class != Hash }
       st_ar.replace(stickies)
       st_ar.save
+      #GC.start
+      puts "fin?"
       #st_ar.free_memory
     end
 

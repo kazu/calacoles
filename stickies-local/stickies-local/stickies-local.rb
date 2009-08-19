@@ -65,13 +65,14 @@ module Calacoles
       #sl = StickiesLocal.new(sth)
       #@stickies.addObject(sl.doc) if sl.doc
       #return true
+      sls = []
       lists.each{|sth|
         if sth[:status].to_s != "show"
           puts "skip:" + sth[:title]
           next
         end
-        sl =  StickiesLocal.new(sth)
-        @stickies.addObject(sl.doc) if sl.doc
+        sls << StickiesLocal.new(sth)
+        @stickies.addObject(sls.last.doc) if sls.last.doc
         save
       }
     end
